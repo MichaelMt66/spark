@@ -1,0 +1,20 @@
+// Stub File
+
+// load XML files containing device activation records.
+// Find the most common device models activated
+
+import scala.xml._
+
+// Given a partition containing multi-line XML, parse the contents. 
+// Return an iterator of activation XML nodes contained in the partition
+
+def getactivations(fileiterator: Iterator[String]): Iterator[Node] = {
+    val nodes = XML.loadString(fileiterator.mkString) \\ "activation"
+    nodes.toIterator
+}
+
+// Get the model name from a device activation record
+def getmodel(activation: Node): String = {
+   (activation \ "model").text
+}
+

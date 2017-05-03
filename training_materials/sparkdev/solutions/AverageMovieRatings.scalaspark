@@ -1,0 +1,20 @@
+// Solution for sqoop exercise in SparkDev
+// Run the sqoop-move-import.sh script to import movie data into HDFS before running this solution
+
+// read in movie ratings (input format: userid[tab]movieid[tab]rating)
+// key by movie id, group and calculate average ratings
+val ratings = sc.textFile("hdfs://localhost/user/training/movierating/part*").
+  map(_.split("\t")).
+  map(tokens => (tokens(1),tokens(2).toInt)).
+  groupByKey().
+  mapValues(ratings => ratings.sum/ratings.size.toFloat)
+
+// read in movie titles (input format: movieid[tab]name[tab]year)
+val movies =  sc.textFile("hdfs://localhost/user/training/movie/part*").
+  map(_.split("\t")).
+  map(tokens => (tokens(0),tokens(1)))
+
+// join movies and ratings, save out movie[tab]rating
+movies.join(ratings).
+  map(pair => pair._2._1 + "\t" + pair._2._2.toString).
+  saveAsTextFile("hdfs://localhost/user/training/averagerating")

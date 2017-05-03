@@ -1,0 +1,23 @@
+// A simple program to iteratively create child RDDs from parent RDDs
+
+// enable checkpointing.
+sc.setCheckpointDir("checkpoints")
+
+// create an RDD of integers
+var mydata = sc.parallelize(Array(1,2,3,4,5))
+
+// iterate to generate a new RDD which descends from prior RDDs
+// resulting in a long lineage
+for (i <- 0 until 200) {
+   mydata = mydata.map(myInt => myInt + 1)
+   println("Iteration " + i + ", new RDD-" + mydata.id)
+}
+
+// collect the contents of the RDD to an array and display
+for (x <- mydata.collect()) println(x)
+     
+// Display the lineage (formatted)
+for (rddstring <- mydata.toDebugString.split('\n')) println(rddstring.trim)
+
+// Print the depth of the lineage
+println("Lineage depth: " + mydata.toDebugString.split('\n').length)

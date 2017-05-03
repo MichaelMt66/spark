@@ -1,0 +1,52 @@
+// Step 1 - Stub code to copy into Spark Shell
+// load XML files containing device activation records.
+// Find the most common device models activated
+
+import scala.xml._
+
+// Given a partition containing multi-line XML, parse the contents.
+// Return an iterator of activation XML nodes contained in the partition
+
+def getactivations(fileiterator: Iterator[String]): Iterator[Node] = {
+    val nodes = XML.loadString(fileiterator.mkString) \\ "activation"
+    nodes.toIterator
+}
+
+// Get the model name from a device activation record
+def getmodel(activation: Node): String = {
+   (activation \ "model").text
+}
+
+
+// Step 2 - activation XML files
+var filename="hdfs://localhost/user/training/activations/*.xml"
+
+// parse each partition as a file into an activation XML record
+var activations = sc.textFile(filename)
+
+// Step 3 - Parse each partition as a file into an activation XML record
+var activationTrees = activations.mapPartitions(getactivations)
+
+// Step 4 - Map each activation record to a device model name
+var models = activationTrees.map(getmodel)
+
+// Step 5 - Show the partitioning
+println(models.toDebugString)
+
+// Step 6 - XCount activations by model
+var modelcounts = models.
+    map(model => (model,1)).
+    reduceByKey((v1,v2) => v1+v2)
+
+// Optionally, show the partitioning
+println(modelcounts.toDebugString)
+
+// Step 7 - Display the top 10 models
+for (pair <- modelcounts.map(_.swap).top(10))
+    println("Model %s (%s)".format(pair._2,pair._1))
+
+// Caching RDDs Exercise Optional Step 9
+import org.apache.spark.storage.StorageLevel
+models.unpersist()
+models.persist(StorageLevel.DISK_ONLY)
+models.count()

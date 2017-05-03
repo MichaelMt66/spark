@@ -1,0 +1,18 @@
+# A simple program to iteratively create child RDDs from parent RDDs
+# Use iPython %paste to run
+
+# create an RDD of integers
+mydata = sc.parallelize([1,2,3,4,5])
+
+# iterate to generate a new RDD which descends from prior RDDs
+# resulting in a long lineage
+for i in range(200):
+   mydata = mydata.map(lambda myInt: myInt + 1)
+   print "Iteration",i
+
+# collect the contents of the RDD to an array and display
+for x in mydata.collect(): print x
+     
+## Display the lineage (formatted)
+for rddstring in mydata.toDebugString().split('\n'): print rddstring.strip()
+

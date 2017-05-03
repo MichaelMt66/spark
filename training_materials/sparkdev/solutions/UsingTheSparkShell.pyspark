@@ -1,0 +1,8 @@
+# Step 3 - create an RDD based on a data file
+mydata = sc.textFile("file:/home/training/training_materials/sparkdev/data/frostroad.txt")
+
+# Step 4 - count the number of lines in the RDD
+mydata.count()
+
+# Step 5 - display all the lines in the RDD
+mydata.collect()

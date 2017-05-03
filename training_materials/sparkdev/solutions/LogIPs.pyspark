@@ -1,0 +1,35 @@
+# Steps 8, 9 - create an RDD based on a data file
+logfile="file:/home/training/training_materials/sparkdev/data/weblogs/2013-09-15.log"
+logs = sc.textFile(logfile)
+
+# count the number of records (lines) in the RDD
+logs.count()
+
+# Step 10 - Display all lines which are requests for JPG files
+jpglogs=logs.filter(lambda x: ".jpg" in x)
+jpglogs.collect()
+
+# Step 12 - Display the JPG requests, this time using a single command line
+sc.textFile(logfile).filter(lambda x: ".jpg" in x).count()
+
+# Step 13 - Create an RDD of the length of each line in the file
+lengths = logs.map(lambda s: len(s))
+# Display the first 5 line lengths
+lengths.take(5)
+
+# Map the log data to an RDD of arrays of the words on each line
+logwords = logs.map(lambda line: line.split())
+
+# Step 15 - Map the log data to an RDD of IP addresses for each line 
+ips = logs.map(lambda line: line.split()[0])
+
+# Step 17 - Save the IP addresses to text file(s)
+ips.saveAsTextFile("file:/home/training/iplist")
+
+# Challenge Exercise 1 - Do the same thing but use the whole data set 
+sc.textFile("file:/home/training/training_materials/sparkdev/data/weblogs/*").map(lambda s: s.split()[0]).saveAsTextFile("file:/home/training/iplist-entire")
+
+# Challenge Exercise 2 - Display "ip-address/user-id" for the first 5 HTML requests 
+# in the data set 
+htmllogs=logs.filter(lambda s: ".htm" in s).map(lambda s: (s.split()[0],s.split()[2]))
+for x in htmllogs.take(5): print x[0]+"/"+x[1]

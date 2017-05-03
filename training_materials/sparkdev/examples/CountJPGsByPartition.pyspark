@@ -1,0 +1,12 @@
+# Example code for mapPartitions
+# (paste into iPython using %paste)
+
+# given a partition containing log file data, find the number of JPG requests
+def countJpgs(index,partIter):
+    jpgcount = 0
+    for line in partIter: 
+        if "jpg" in line: jpgcount += 1
+    yield (index,jpgcount)
+
+# Map each file partition to the number of JPG requests in that file
+sc.textFile("weblogs/*").mapPartitionsWithIndex(countJpgs).collect()

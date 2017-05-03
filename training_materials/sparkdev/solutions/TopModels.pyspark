@@ -1,0 +1,49 @@
+# Step 1 - Stub code to copy into Spark Shell
+# load XML files containing device activation records.
+# Find the most common device models activated
+
+import xml.etree.ElementTree as ElementTree
+
+# Given a partition containing multi-line XML, parse the contents.
+# Return an iterator of activation Elements contained in the partition
+def getactivations(fileiterator):
+    s = ''
+    for i in fileiterator: s = s + str(i)
+    filetree = ElementTree.fromstring(s)
+    return filetree.getiterator('activation')
+
+# Get the model name from a device activation record
+def getmodel(activation):
+    return activation.find('model').text
+
+# Step 2 - Read XML files into an RDD and show number of partitions
+filename="hdfs://localhost/user/training/activations/*.xml"
+# Load activation files
+activations = sc.textFile(filename)
+# Show the partitioning
+print "Activations: ",activations.toDebugString()
+
+# Step 3 - Parse each partition as a file into an activation XML record
+activationTrees = activations.mapPartitions(lambda xml: getactivations(xml))
+
+# Step 4 - Map each activation record to a device model name
+models = activationTrees.map(lambda activation: getmodel(activation))
+
+# Step 5 - Show the partitioning
+print "Models: ",models.toDebugString()
+
+# Step 6 - Count activations by model
+modelcounts = models.map(lambda model: (model,1)).reduceByKey(lambda v1,v2: v1+v2)
+
+# Optionally, show the partitioning.
+print "Model Counts: ",modelcounts.toDebugString()
+
+# Step 7 - Display the top 10 models
+for (count,model) in modelcounts.map(lambda (model,count): (count,model)).top(10):
+    print "Model %s (%s)" % (model,count)
+
+# Caching RDDs Exercise Optional Step 9
+from pyspark import StorageLevel
+models.unpersist()
+models.persist(StorageLevel.DISK_ONLY)
+models.count()

@@ -1,0 +1,4 @@
+// Read in list of target models from a local file
+import scala.io.Source
+val targetfile = "/home/training/training_materials/sparkdev/data/targetmodels.txt"
+val targetlist = Source.fromFile(targetfile).getLines.toList

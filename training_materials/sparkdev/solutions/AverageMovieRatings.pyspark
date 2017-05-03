@@ -1,0 +1,20 @@
+# Solution to Spark Dev exercise
+# Run sqoop-movie-import.sh script to import movie data from mysql before running this script
+
+# read in movie ratings (input format: userid[tab]movieid[tab]rating)
+# key by movie id, group and calculate average ratings
+ratings = sc.textFile("hdfs://localhost/user/training/movierating/part*").\
+  map(lambda line: line.split("\t")).\
+  map(lambda values: (values[1],int(values[2]))).\
+  groupByKey().\
+  mapValues(lambda ratings: sum(ratings)/float(len(ratings)))
+
+# read in movie titles (input format: movieid[tab]name[tab]year)
+movies =  sc.textFile("hdfs://localhost/user/training/movie/part*").\
+  map(lambda line: line.split("\t")).\
+  map(lambda values: (values[0],values[1]))
+
+# join movies and ratings, save out movie[tab]rating
+movies.join(ratings).\
+  map(lambda (movieid, (name, rating)): name + "\t" + str(rating)).\
+  saveAsTextFile("hdfs://localhost/user/training/averagerating")

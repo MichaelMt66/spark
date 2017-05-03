@@ -1,0 +1,3 @@
+# Read in list of target models from a local file
+targetfile = "/home/training/training_materials/sparkdev/data/targetmodels.txt"
+targetlist = list(map(lambda l: l.strip(),open(targetfile)))

@@ -1,0 +1,35 @@
+// create an RDD based on a data file
+var logfile="file:/home/training/training_materials/sparkdev/data/weblogs/2013-09-15.log"
+var logs = sc.textFile(logfile)
+
+// count the number of records (lines) in the RDD
+logs.count()
+
+// display all lines which are requests for JPG files
+var jpglogs=logs.filter(line => line.contains(".jpg"))
+jpglogs.collect()
+
+// display the JPG requests, this time using a single command line
+sc.textFile(logfile).filter(line => line.contains(".jpg")).count()
+
+// Create an RDD of the length of each line in the file
+var lengths = logs.map(line => line.length)
+// Display the first 5 line lengths
+lengths.take(5)
+
+// Map the log data to an RDD of arrays of the words on each line
+var logwords = logs.map(line => line.split(' '))
+
+// Map the log data to an RDD of IP addresses for each line 
+var ips = logs.map(line => line.split(' ')(0))
+
+// Save the IP addresses to text file(s)
+ips.saveAsTextFile("file:/home/training/iplist")
+
+// Challenge Exercise 1 - Do the same thing but use the whole data set
+sc.textFile("file:/home/training/training_materials/sparkdev/data/weblogs/*").map(line => line.split(' ')(0))saveAsTextFile("file:/home/training/iplist")
+
+// Challenge Exercise 2 - Display "ip-address/user-id" for the first 5 HTML requests in the data set
+var htmllogs=logs.filter(_.contains(".html")).map(line => (line.split(' ')(0),line.split(' ')(2)))
+htmllogs.take(5).foreach(t => println(t._1 + "/" + t._2))
+

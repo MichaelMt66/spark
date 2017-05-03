@@ -1,0 +1,13 @@
+import xml.etree.ElementTree as ElementTree
+
+# Given a partition containing multi-line XML, parse the contents. 
+# Return an iterator of activation Elements contained in the partition
+def getactivations(fileiterator):
+    s = ''
+    for i in fileiterator: s = s + str(i)
+    filetree = ElementTree.fromstring(s)
+    return filetree.getiterator('activation')
+
+# Get the model name from a device activation record
+def getmodel(activation):
+    return activation.find('model').text    

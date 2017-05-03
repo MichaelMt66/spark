@@ -1,0 +1,8 @@
+// create an RDD based on a data file
+var mydata = sc.textFile("file:/home/training/training_materials/sparkdev/data/frostroad.txt")
+
+// count the number of lines in the RDD
+mydata.count()
+
+// display all the lines in the RDD
+mydata.collect()
